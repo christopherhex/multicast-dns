@@ -78,14 +78,17 @@ module.exports = function (opts) {
     if (!cb) cb = noop
     if (!rinfo) rinfo = me
 
-    bind(onbind)
+    // bind(onbind)
 
-    function onbind (err) {
-      if (destroyed) return cb()
-      if (err) return cb(err)
-      var message = packet.encode(value)
-      socket.send(message, 0, message.length, rinfo.port, rinfo.address || rinfo.host, cb)
-    }
+    var message = packet.encode(value)
+    socket.send(message, 0, message.length, rinfo.port, rinfo.address || rinfo.host, cb)
+
+    // function onbind (err) {
+    //   if (destroyed) return cb()
+    //   if (err) return cb(err)
+    //   var message = packet.encode(value)
+    //   socket.send(message, 0, message.length, rinfo.port, rinfo.address || rinfo.host, cb)
+    // }
   }
 
   that.response =
@@ -156,7 +159,7 @@ function defaultInterface () {
     }
   }
 
-  return '127.0.0.1'
+  return '0.0.0.0'
 }
 
 function allInterfaces () {
