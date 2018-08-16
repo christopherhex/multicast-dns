@@ -51,18 +51,18 @@ module.exports = function (opts) {
 
   socket.on('listening', function () {
     if (!port) port = me.port = socket.address().port
-    if (opts.multicast !== false) {
-      that.update()
-      interval = setInterval(that.update, 5000)
-      socket.setMulticastTTL(opts.ttl || 255)
-      socket.setMulticastLoopback(opts.loopback !== false)
-    }
+    //that.update()
+    // interval = setInterval(that.update, 5000)
+    socket.setMulticastTTL(20)
+    socket.setMulticastLoopback(true)
   })
 
   var bind = thunky(function (cb) {
     if (!port) return cb(null)
     socket.once('error', cb)
     socket.bind(port, opts.interface, function () {
+      socket.addMembership(ip);
+      socket.setMulticastInterface('0.0.0.0')
       socket.removeListener('error', cb)
       cb(null)
     })
@@ -117,32 +117,32 @@ module.exports = function (opts) {
     if (!cb) cb = noop
     if (destroyed) return process.nextTick(cb)
     destroyed = true
-    clearInterval(interval)
+    //clearInterval(interval)
     socket.once('close', cb)
     socket.close()
   }
 
-  that.update = function () {
-    var ifaces = opts.interface ? [].concat(opts.interface) : allInterfaces()
-    var updated = false
+  // that.update = function () {
+  //   var ifaces = opts.interface ? [].concat(opts.interface) : allInterfaces()
+  //   var updated = false
 
-    for (var i = 0; i < ifaces.length; i++) {
-      var addr = ifaces[i]
+  //   for (var i = 0; i < ifaces.length; i++) {
+  //     var addr = ifaces[i]
 
-      if (memberships[addr]) continue
-      memberships[addr] = true
-      updated = true
+  //     if (memberships[addr]) continue
+  //     memberships[addr] = true
+  //     updated = true
 
-      try {
-        socket.addMembership(ip, addr)
-      } catch (err) {
-        that.emit('warning', err)
-      }
-    }
+  //     try {
+  //       socket.addMembership(ip, addr)
+  //     } catch (err) {
+  //       that.emit('warning', err)
+  //     }
+  //   }
 
-    if (!updated || !socket.setMulticastInterface) return
-    socket.setMulticastInterface(opts.interface || defaultInterface())
-  }
+  //   if (!updated || !socket.setMulticastInterface) return
+  //   socket.setMulticastInterface(opts.interface || defaultInterface())
+  // }
 
   return that
 }
